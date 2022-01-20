@@ -2,8 +2,12 @@ import { initializeApp } from "firebase/app";
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import LandingScreen from './Conponant/Landing';
-import RegisterScreen from './Conponant/Register';
-import React, { useState, useEffect } from 'react';
+import HomeScreen from './Conponant/Home';
+import LoginScreen from './Conponant/Login';
+import React, { useState, useEffect, Component } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import * as firebase from "firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -16,25 +20,44 @@ const firebaseConfig = {
   measurementId: "G-ZXN0RHRYH9"
 };
 
+const app = initializeApp(firebaseConfig);
+
 
 const Stack = createStackNavigator();
+
 export default function App() {
- useEffect(() => {
-  
-    initializeApp(firebaseConfig);
-  }, 
-  []
-  );
-  
-  
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Landing">
-      <Stack.Screen name="landing" component={LandingScreen} options={{hearderShown : false}}/>
-      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Navigator>
+        <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+
+
+
+// export default function App() {
+//  useEffect(() => {
+  
+//     initializeApp(firebaseConfig);
+//   }, 
+//   []
+//   );
+  
+  
+ 
+//}
 
  
