@@ -22,7 +22,7 @@ const LoginScreen = () => {
   
     const handleSignUp = () => {
         
-        createUserWithEmailAndPassword(auth, email, password, name)
+        firebase.createUserWithEmailAndPassword(auth, email, password, name)
         .then(userCredentials => {
           const user = userCredentials.user;
           console.log('Registered with:', user.email);
@@ -32,7 +32,7 @@ const LoginScreen = () => {
   
     const handleLogin = () => {
     
-        signInWithEmailAndPassword(email, password, name)
+        signInWithEmailAndPassword(auth, email, password, name)
         .then(userCredentials => {
           const user = userCredentials.user;
           console.log('Logged in with:', user.email);
@@ -45,13 +45,13 @@ const LoginScreen = () => {
         style={styles.container}
         behavior="padding"
       >
-         <TextInput
+        <View style={styles.inputContainer}>
+        <TextInput
             placeholder="Name"
             value={name}
             onChangeText={text => setName(text)}
             style={styles.input}
           />
-        <View style={styles.inputContainer}>
           <TextInput
             placeholder="Email"
             value={email}
