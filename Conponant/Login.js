@@ -22,7 +22,7 @@ const LoginScreen = () => {
   
     const handleSignUp = () => {
         
-        createUserWithEmailAndPassword(auth, email, password, name)
+        firebase.createUserWithEmailAndPassword(auth, email, password, name)
         .then(userCredentials => {
           const user = userCredentials.user;
           console.log('Registered with:', user.email);
