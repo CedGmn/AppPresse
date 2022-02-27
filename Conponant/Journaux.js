@@ -6,7 +6,7 @@ import {Image} from 'react-native';
 import { getStorage,ref, uploadBytes, getDownloadURL, StorageReference   } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 import CommentScreen from './Comment';
-
+import { JournalType } from './Home';
 const firebaseConfig = {
   apiKey: "AIzaSyBm0_dMFVTXcxEfxRdRH4Oy3cI9GcqyjX8",
   authDomain: "presseapp-f641d.firebaseapp.com",
@@ -18,41 +18,71 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 export const firestoreDb = getStorage(app);
-  
-//var storag e = firebase.storage();
+export var choice;
+var imageNuber = 1;
+
 const JournauxScreen = () => {
   const navigation = useNavigation()
-  const [imageUrl, setImageUrl] = useState(undefined);
   
+const [imageUrl,setImageUrl] = useState(
+  {
+    urls : []
+  }
+)
+  const allInputs = new  Array();
     useEffect(() => {
-          getDownloadURL( ref(firestoreDb, 'gs://presseapp-f641d.appspot.com/canard.jpg'))
-          .then((url) => {
-            setImageUrl(url);
-          })
-          .catch((e) => console.log('Errors while downloading => ', e));
-      }, []);
+      allInputs[1] = 'gs://presseapp-f641d.appspot.com/canard.jpg';
+      allInputs[2] = 'gs://presseapp-f641d.appspot.com/parisien.750.jpg';
+      uploadFile(allInputs[1],0 );
 
-      const redirectComment = () => {
-        navigation.navigate('Comment')
+      uploadFile(allInputs[2],1);
+
+     }, []); 
+
+     async function uploadFile(ggCount, index) { 
+      console.log("uploadFile",imageUrl);
+       const tata =  getDownloadURL( ref(firestoreDb, ggCount))
+        .then((url) => {
+          imageUrl.urls.push(url);
+            console.log(imageUrl);
+            setImageUrl({ urls : imageUrl.urls});
+          })
+        .catch((e) => console.log('Errors while downloading => ', e));
+       
+     }
+    function redirectComment(intChoice) {
+      console.log("switch !" ,intChoice)
+      switch(intChoice){
+        case 0 :
+          choice = JournalType.Canard;
+          console.log("Canard !" ,choice)
+          break;
+        case 1 :
+          choice = JournalType.LeParisien;
+          console.log("parisien !" ,choice);
       }
+        navigation.navigate('Comment');
+    }
+    
+    const JounalChoice = (intChoice) => {
+
+    }
 
 return (
-       
-      <><Image style={{ width: 244, height: 380 }} source={{ uri: imageUrl }} /><View>
-
-      <View style={styles.buttonContainer}>
-      </View>
-      <TouchableOpacity
-          onPress={redirectComment}
-          style={styles.button}
-/>
-
+  <View>
+  
+      {imageUrl.urls.map((url ,imageNuber) => {
+        
+        console.log('imagenuber', imageNuber);
+        return <View key={imageNuber}>
+         <Image  id = 'myimg1' style={{ width: 244, height: 380 }} source = {{uri : url}}></Image> 
+         <TouchableOpacity
+           onPress={() => redirectComment(imageNuber)}
+          style={styles.button}/>
+       </View>  
+      })}
   </View>
-</>
-     
-
       )
-
 }
 export default JournauxScreen;
 

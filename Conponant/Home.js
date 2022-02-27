@@ -3,15 +3,18 @@ import React, { Component } from 'react'
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from '@react-navigation/core'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import JournauxScreen from './Journaux';
+import JournauxScreen, { jounalType } from './Journaux';
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore"
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
+export var JournalType = {
+  Canard: 1,
+  LeParisien : 2
+};
 const HomeScreen = () => {
     const navigation = useNavigation()
     const auth = getAuth();
-
+   
     const handleSignOut = () => {
       auth
         .signOut()
@@ -20,7 +23,7 @@ const HomeScreen = () => {
         })
         .catch(error => alert(error.message))
     }
-
+  
     const redirectJournaux = () => {
       navigation.navigate('Journaux')
     }
@@ -36,7 +39,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={redirectJournaux}
+          onPress={() => {redirectJournaux()}}
           style={styles.button}
         >
           <Text style={styles.buttonText}>journaux</Text>

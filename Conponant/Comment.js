@@ -7,6 +7,8 @@ import { getFirestore, collection, query, where, getDocs } from "firebase/firest
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore"
 import { async } from '@firebase/util';
+import { JournalType } from './Home';
+import { choice } from './Journaux';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBm0_dMFVTXcxEfxRdRH4Oy3cI9GcqyjX8",
@@ -22,17 +24,26 @@ export const db = firebase.firestore();
 
 const CommentScreen = () => {
   var post;
+  var querySnapshot;
   const [commentUser, setUserComment] = useState('');
+  const [commentList, setCommentList] = useState({
+    commentLists : [],
+    dateList : []
+  });
   var datePost;
+  var result;
+  var str;
+  var date;
   
   useEffect(() => {
-    
     getData();
 
- }, [])
+ }, [commentUser])
 
   const postComment = () => {
-
+    switch(choice){
+      case JournalType.Canard:
+            //on snaphot add for refresh data
     db.collection("Post")
     .add({
       ID : "Canard",
@@ -42,43 +53,64 @@ const CommentScreen = () => {
     .catch((error) => {
         console.log("Error getting documents: ", error);
     });
+        case JournalType.LeParisien:
+    }
+
   
     }
 
   const getData = async payload =>{
+    
+    switch(choice){
+      case JournalType.Canard:
+        const q = query(collection(db,"Post"), where("ID", "==", "Canard"));
+         querySnapshot = await getDocs(q);
+    
+           querySnapshot.forEach((doc) => {
+    
+             result = doc.data().Comment; 
+             str = JSON.stringify(result);
+             date = JSON.stringify(doc.data().DateComment);
+             commentList.dateList.push(date)
+            setCommentList({dateList  : commentList.dateList});
+            commentList.commentLists.push(str);
+            setCommentList({commentLists  : commentList.commentLists});
+          });
 
-    const q = query(collection(db,"Post"), where("ID", "==", "Canard"));
-    const querySnapshot = await getDocs(q);
+          post = str;
+          datePost = date;
+        
+          // var piano = document.createElement("li");
+          // piano.id = "surdoué";
+          // post = post.replaceAll('"',' ');
+          // datePost = datePost.replaceAll('"',' ');
+          // piano.textContent = post +" "+ datePost; 
+          // document.getElementById("commentList").appendChild(piano);
+          // 
+        break;
+        case JournalType.Canard:
+          break;
+        
+    }
 
-      querySnapshot.forEach((doc) => {
-
-        const result = doc.data().Comment; 
-        const str = JSON.stringify(result);
-        const date = JSON.stringify(doc.data().DateComment);
-      
-      console.log(date);
-      post = str;
-      datePost = date;
-      console.log("post:",str);
-              
-      var piano = document.createElement("li");
-      piano.id = "surdoué";
-      post = post.replaceAll('"',' ');
-      datePost = datePost.replaceAll('"',' ');
-      piano.textContent = post +" "+ datePost; 
-      document.getElementById("commentList").appendChild(piano);
-      });
   }
 
     return(
+ 
       <KeyboardAvoidingView
       style={styles.container}
       behavior="padding"
     >
-           <div>
-        <ul id="commentList">
-        </ul>
-    </div>
+      {commentList.commentLists?.map((commentList, nbr) => {
+        
+        return <View key ={nbr} >
+        <Text key = {nbr} style={styles.buttonText}>{commentList}</Text>
+       </View>  
+      })}
+      {commentList.dateList?.map((dateList, ro) => {
+        console.log('date', dateList);
+        return <Text key ={ro} style={styles.buttonText}>{dateList}</Text>
+      })}
 
       <View style={styles.inputContainer}>
 
