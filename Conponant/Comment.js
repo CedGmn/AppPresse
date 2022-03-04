@@ -6,7 +6,7 @@ import { getFirestore, collection, query, where, getDocs } from "firebase/firest
 //import db from "./Home"
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore"
-import { async } from '@firebase/util';
+import { async, stringify } from '@firebase/util';
 import { JournalType } from './Home';
 import { choice } from './Journaux';
 
@@ -27,14 +27,12 @@ const CommentScreen = () => {
   var querySnapshot;
   const [commentUser, setUserComment] = useState('');
   const [commentList, setCommentList] = useState({
-    commentLists : [],
-    dateList : []
+    journalData : []
   });
-  var datePost;
-  var result;
   var str;
   var date;
-  
+  var i =0;
+
   useEffect(() => {
     getData();
 
@@ -62,37 +60,28 @@ const CommentScreen = () => {
   const getData = async payload =>{
     
     switch(choice){
-      case JournalType.Canard:
-        const q = query(collection(db,"Post"), where("ID", "==", "Canard"));
-         querySnapshot = await getDocs(q);
-    
-           querySnapshot.forEach((doc) => {
-    
-             result = doc.data().Comment; 
-             str = JSON.stringify(result);
-             date = JSON.stringify(doc.data().DateComment);
-             commentList.dateList.push(date)
-            setCommentList({dateList  : commentList.dateList});
-            commentList.commentLists.push(str);
-            setCommentList({commentLists  : commentList.commentLists});
-          });
 
-          post = str;
-          datePost = date;
-        
-          // var piano = document.createElement("li");
-          // piano.id = "surdoué";
-          // post = post.replaceAll('"',' ');
-          // datePost = datePost.replaceAll('"',' ');
-          // piano.textContent = post +" "+ datePost; 
-          // document.getElementById("commentList").appendChild(piano);
-          // 
+      case JournalType.Canard:
+
+      const q = query(collection(db,"Post"), where("ID", "==", "Canard"));
+      querySnapshot = await getDocs(q);
+  
+      querySnapshot.forEach((doc) => {
+          
+            var result = doc.data().Comment; 
+            var comment = JSON.stringify(result);
+            var date = JSON.stringify(doc.data().DateComment);
+            var completeComment = {date, comment};
+
+            commentList.journalData.push(completeComment);
+            setCommentList({journalData : commentList.journalData})
+            console.log('commentList',commentList);
+      });
+
         break;
         case JournalType.Canard:
-          break;
-        
+          break;  
     }
-
   }
 
     return(
@@ -101,15 +90,13 @@ const CommentScreen = () => {
       style={styles.container}
       behavior="padding"
     >
-      {commentList.commentLists?.map((commentList, nbr) => {
-        
-        return <View key ={nbr} >
-        <Text key = {nbr} style={styles.buttonText}>{commentList}</Text>
+      {commentList.journalData?.map((comment) => {
+        i++;
+        console.log('comm',comment);
+        return <View key ={i} >
+        <Text style={styles.buttonText}>{comment.date}</Text>
+        <Text style={styles.buttonText}>{comment.comment}</Text>
        </View>  
-      })}
-      {commentList.dateList?.map((dateList, ro) => {
-        console.log('date', dateList);
-        return <Text key ={ro} style={styles.buttonText}>{dateList}</Text>
       })}
 
       <View style={styles.inputContainer}>
@@ -123,12 +110,12 @@ const CommentScreen = () => {
 
       </View>
 
-           <View style={styles.buttonContainer}>
+      <View style={styles.buttonContainer}>
 
            <TouchableOpacity
           onPress={postComment}
           style={styles.button}
-          />
+      />
        
 </View>
       </KeyboardAvoidingView>
