@@ -3,13 +3,13 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { getStorage,ref, uploadBytes, getDownloadURL, StorageReference   } from "firebase/storage";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 //import db from "./Home"
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore"
 import { async, stringify } from '@firebase/util';
 import { JournalType } from './Home';
 import { choice } from './Journaux';
-
 const firebaseConfig = {
   apiKey: "AIzaSyBm0_dMFVTXcxEfxRdRH4Oy3cI9GcqyjX8",
   authDomain: "presseapp-f641d.firebaseapp.com",
@@ -24,6 +24,7 @@ export const db = firebase.firestore();
 
 const CommentScreen = () => {
   var post;
+  const auth = getAuth();
   var querySnapshot;
   const [commentUser, setUserComment] = useState('');
   const [commentList, setCommentList] = useState({
@@ -52,9 +53,21 @@ const CommentScreen = () => {
         console.log("Error getting documents: ", error);
     });
         case JournalType.LeParisien:
+          db.collection("Post")
+          .add({
+            ID : "Parisien",
+            Comment: commentUser,
+            DateComment : new Date().toLocaleString(),
+          })
+          .catch((error) => {
+              console.log("Error getting documents: ", error);
+          });
     }
 
   
+    }
+    const ClearView = () => {
+      
     }
 
   const getData = async payload =>{
@@ -62,15 +75,15 @@ const CommentScreen = () => {
     switch(choice){
 
       case JournalType.Canard:
-
+      
       const q = query(collection(db,"Post"), where("ID", "==", "Canard"));
       querySnapshot = await getDocs(q);
   
       querySnapshot.forEach((doc) => {
           
             var result = doc.data().Comment; 
-            var comment = JSON.stringify(result);
-            var date = JSON.stringify(doc.data().DateComment);
+            var comment = JSON.stringify(result).replaceAll('"',' ');
+            var date = JSON.stringify(doc.data().DateComment).replaceAll('"',' ');
             var completeComment = {date, comment};
 
             commentList.journalData.push(completeComment);
@@ -79,7 +92,22 @@ const CommentScreen = () => {
       });
 
         break;
-        case JournalType.Canard:
+        case JournalType.LeParisien:
+          
+      const p = query(collection(db,"Post"), where("ID", "==", "Parisien"));
+      querySnapshot = await getDocs(p);
+  
+      querySnapshot.forEach((doc) => {
+          
+            var result = doc.data().Comment; 
+            var comment = JSON.stringify(result).replaceAll('"',' ');
+            var date = JSON.stringify(doc.data().DateComment).replaceAll('"',' ');
+            var completeComment = {date, comment};
+
+            commentList.journalData.push(completeComment);
+            setCommentList({journalData : commentList.journalData})
+            console.log('commentList',commentList);
+      });
           break;  
     }
   }
@@ -92,10 +120,12 @@ const CommentScreen = () => {
     >
       {commentList.journalData?.map((comment) => {
         i++;
-        console.log('comm',comment);
+       // console.log('curr',currentUser);
         return <View key ={i} >
-        <Text style={styles.buttonText}>{comment.date}</Text>
-        <Text style={styles.buttonText}>{comment.comment}</Text>
+        <div key ={i} backgroundColor = 'blue'>
+        <Text  style={styles.text}>Ecrit le : {comment.date} par : {auth.currentUser?.email}</Text>
+        </div>
+        <Text style={styles.buttonText}> {comment.comment}</Text>
        </View>  
       })}
 
@@ -113,7 +143,7 @@ const CommentScreen = () => {
       <View style={styles.buttonContainer}>
 
            <TouchableOpacity
-          onPress={postComment}
+          onPress={() => {postComment() }}
           style={styles.button}
       />
        
@@ -130,6 +160,16 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
+    text :{
+      flex : 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      color : 'red'
+
+    },
+    div1 : {
+      backgroundColor : 'grey'
+  },
 buttonContainer: {
       width: '60%',
       justifyContent: 'center',

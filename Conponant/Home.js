@@ -12,8 +12,9 @@ export var JournalType = {
   LeParisien : 2
 };
 const HomeScreen = () => {
-    const navigation = useNavigation()
-    const auth = getAuth();
+  const navigation = useNavigation()
+  const auth = getAuth();
+ 
    
     const handleSignOut = () => {
       auth
