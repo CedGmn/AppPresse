@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput,FlatList, TouchableOpacity, View } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { getStorage,ref, uploadBytes, getDownloadURL, StorageReference   } from "firebase/storage";
@@ -33,13 +33,15 @@ const CommentScreen = () => {
   var str;
   var date;
   var i =0;
+  var indexOfHtml=[] ;
 
   useEffect(() => {
     getData();
 
- }, [commentUser])
+ }, [])
 
   const postComment = () => {
+    
     switch(choice){
       case JournalType.Canard:
             //on snaphot add for refresh data
@@ -64,21 +66,20 @@ const CommentScreen = () => {
           });
     }
 
-  
-    }
-    const ClearView = () => {
-      
     }
 
+/**
+    Function te load data
+ **/
   const getData = async payload =>{
-    
-    switch(choice){
 
+    switch(choice){
       case JournalType.Canard:
       
       const q = query(collection(db,"Post"), where("ID", "==", "Canard"));
       querySnapshot = await getDocs(q);
-  
+      commentList.journalData = [];
+
       querySnapshot.forEach((doc) => {
           
             var result = doc.data().Comment; 
@@ -112,19 +113,18 @@ const CommentScreen = () => {
     }
   }
 
+
     return(
  
       <KeyboardAvoidingView
       style={styles.container}
       behavior="padding"
     >
+
       {commentList.journalData?.map((comment) => {
         i++;
-       // console.log('curr',currentUser);
         return <View key ={i} >
-        <div key ={i} backgroundColor = 'blue'>
         <Text  style={styles.text}>Ecrit le : {comment.date} par : {auth.currentUser?.email}</Text>
-        </div>
         <Text style={styles.buttonText}> {comment.comment}</Text>
        </View>  
       })}
@@ -143,7 +143,7 @@ const CommentScreen = () => {
       <View style={styles.buttonContainer}>
 
            <TouchableOpacity
-          onPress={() => {postComment() }}
+          onPress={() => {postComment(); getData() }}
           style={styles.button}
       />
        
